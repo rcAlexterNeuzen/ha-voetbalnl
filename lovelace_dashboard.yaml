@@ -1,0 +1,161 @@
+################################################################################
+# Voetbal.nl – Lovelace Dashboard
+#
+# HOW TO USE
+# ----------
+# 1. Open Home Assistant → Settings → Dashboards → Add Dashboard → "Edit raw config"
+#    (or open an existing dashboard and click the pencil → Edit raw configuration)
+# 2. Paste this entire file.
+# 3. Replace every occurrence of the placeholder entity prefix:
+#      sensor.voetbal_nl_asv_arsenal_vr1
+#    with the actual prefix for YOUR team.
+#    Tip: go to Developer Tools → States and search for "voetbal" to find your
+#    exact entity IDs.
+#
+# Sensors used (3 per configured team):
+#   sensor.<prefix>_standing   – league position + stats + full_standings list
+#   sensor.<prefix>_next_match – upcoming fixture details
+#   sensor.<prefix>_last_result – most recent result
+################################################################################
+
+title: Voetbal.nl
+views:
+  - title: Team
+    path: voetbal
+    icon: mdi:soccer
+    badges: []
+    cards:
+
+      # ── Header ──────────────────────────────────────────────────────────────
+      - type: markdown
+        content: >
+          <ha-icon icon="mdi:trophy" style="color: var(--primary-color)"></ha-icon>
+          &nbsp;**{{ state_attr('sensor.voetbal_nl_asv_arsenal_vr1_standing','team') }}**
+          &nbsp;&nbsp;·&nbsp;&nbsp;
+          {{ state_attr('sensor.voetbal_nl_asv_arsenal_vr1_standing','league') }}
+
+      # ── Stats row ────────────────────────────────────────────────────────────
+      - type: horizontal-stack
+        cards:
+          - type: markdown
+            content: >
+              <div style="text-align:center;padding:8px 0">
+                <div style="font-size:0.75em;color:var(--secondary-text-color);text-transform:uppercase;letter-spacing:.05em">Positie</div>
+                <div style="font-size:2em;font-weight:700;color:var(--primary-color)">
+                  {{ states('sensor.voetbal_nl_asv_arsenal_vr1_standing') }}
+                </div>
+              </div>
+
+          - type: markdown
+            content: >
+              <div style="text-align:center;padding:8px 0">
+                <div style="font-size:0.75em;color:var(--secondary-text-color);text-transform:uppercase;letter-spacing:.05em">Punten</div>
+                <div style="font-size:2em;font-weight:700;color:var(--primary-color)">
+                  {{ state_attr('sensor.voetbal_nl_asv_arsenal_vr1_standing','points') }}
+                </div>
+              </div>
+
+          - type: markdown
+            content: >
+              <div style="text-align:center;padding:8px 0">
+                <div style="font-size:0.75em;color:var(--secondary-text-color);text-transform:uppercase;letter-spacing:.05em">Gespeeld</div>
+                <div style="font-size:2em;font-weight:700">
+                  {{ state_attr('sensor.voetbal_nl_asv_arsenal_vr1_standing','games_played') }}
+                </div>
+              </div>
+
+      # ── W / GL / V + Goals ──────────────────────────────────────────────────
+      - type: markdown
+        content: >
+          {% set s = 'sensor.voetbal_nl_asv_arsenal_vr1_standing' %}
+          <table width="100%" style="border-collapse:collapse;text-align:center">
+            <thead>
+              <tr style="color:var(--secondary-text-color);font-size:0.8em;text-transform:uppercase">
+                <th>W</th><th>GL</th><th>V</th><th>+</th><th>−</th><th>Ds</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="font-size:1.2em;font-weight:600">
+                <td style="color:#4caf50">{{ state_attr(s,'won') }}</td>
+                <td>{{ state_attr(s,'drawn') }}</td>
+                <td style="color:#f44336">{{ state_attr(s,'lost') }}</td>
+                <td>{{ state_attr(s,'goals_for') }}</td>
+                <td>{{ state_attr(s,'goals_against') }}</td>
+                <td>{{ state_attr(s,'goal_difference') }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+      # ── Next Match ───────────────────────────────────────────────────────────
+      - type: markdown
+        content: >
+          {% set nm = 'sensor.voetbal_nl_asv_arsenal_vr1_next_match' %}
+          {% set home = state_attr(nm,'home_team') %}
+          {% set away = state_attr(nm,'away_team') %}
+          {% set t    = state_attr(nm,'time') %}
+          {% set d    = state_attr(nm,'date') %}
+          {% set home_game = state_attr(nm,'is_home_game') %}
+          <div style="margin-bottom:4px">
+            <ha-icon icon="mdi:calendar-clock" style="color:var(--primary-color)"></ha-icon>
+            &nbsp;<strong>Volgende wedstrijd</strong>
+            {% if home_game %}<span style="font-size:0.75em;background:#1565c0;color:#fff;border-radius:3px;padding:1px 5px;margin-left:6px">THUIS</span>
+            {% else %}<span style="font-size:0.75em;background:#37474f;color:#fff;border-radius:3px;padding:1px 5px;margin-left:6px">UIT</span>{% endif %}
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+            <div style="font-size:1em;font-weight:{% if home_game %}700{% else %}400{% endif %};flex:1;text-align:left">{{ home }}</div>
+            <div style="font-size:0.9em;color:var(--secondary-text-color);padding:0 12px;white-space:nowrap">
+              {% if d %}{{ d }}<br>{% endif %}{{ t if t else 'TBD' }}
+            </div>
+            <div style="font-size:1em;font-weight:{% if not home_game %}700{% else %}400{% endif %};flex:1;text-align:right">{{ away }}</div>
+          </div>
+          {% if state_attr(nm,'competition') %}
+          <div style="margin-top:6px;font-size:0.75em;color:var(--secondary-text-color)">
+            <ha-icon icon="mdi:soccer-field"></ha-icon> {{ state_attr(nm,'competition') }}
+            {% if state_attr(nm,'location') %} · {{ state_attr(nm,'location') }}{% endif %}
+          </div>
+          {% endif %}
+
+      # ── Last Result ──────────────────────────────────────────────────────────
+      - type: markdown
+        content: >
+          {% set lr    = 'sensor.voetbal_nl_asv_arsenal_vr1_last_result' %}
+          {% set home  = state_attr(lr,'home_team') %}
+          {% set away  = state_attr(lr,'away_team') %}
+          {% set hs    = state_attr(lr,'home_score') %}
+          {% set as_   = state_attr(lr,'away_score') %}
+          {% set res   = state_attr(lr,'result') | default('') | upper %}
+          {% set home_game = state_attr(lr,'is_home_game') %}
+          {% set color = '#4caf50' if res == 'WIN' else ('#f44336' if res == 'LOSS' else '#ff9800') %}
+          <div style="margin-bottom:4px">
+            <ha-icon icon="mdi:scoreboard" style="color:var(--primary-color)"></ha-icon>
+            &nbsp;<strong>Laatste uitslag</strong>
+            {% if res %}
+            <span style="font-size:0.75em;background:{{ color }};color:#fff;border-radius:3px;padding:1px 6px;margin-left:6px;font-weight:700">{{ res }}</span>
+            {% endif %}
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+            <div style="font-size:1em;font-weight:{% if home_game %}700{% else %}400{% endif %};flex:1;text-align:left">{{ home }}</div>
+            <div style="font-size:1.8em;font-weight:700;padding:0 12px;color:{{ color }}">
+              {{ hs }} – {{ as_ }}
+            </div>
+            <div style="font-size:1em;font-weight:{% if not home_game %}700{% else %}400{% endif %};flex:1;text-align:right">{{ away }}</div>
+          </div>
+          {% if state_attr(lr,'date') %}
+          <div style="margin-top:6px;font-size:0.75em;color:var(--secondary-text-color)">
+            {{ state_attr(lr,'date') }}
+          </div>
+          {% endif %}
+
+      # ── Full Standings Table ─────────────────────────────────────────────────
+      - type: markdown
+        content: >
+          {% set s = 'sensor.voetbal_nl_asv_arsenal_vr1_standing' %}
+          {% set my_team = state_attr(s,'team') | lower %}
+          ## Poulestand
+
+          | # | Team | G | W | GL | V | Pts |
+          |---|------|:-:|:-:|:--:|:-:|:---:|
+          {% for e in state_attr(s,'full_standings') -%}
+          {% set bold = my_team in e.team | lower %}
+          | {{ e.position }} | {% if bold %}**{{ e.team }}**{% else %}{{ e.team }}{% endif %} | {{ e.played }} | {{ e.won }} | {{ e.drawn }} | {{ e.lost }} | {% if bold %}**{{ e.points }}**{% else %}{{ e.points }}{% endif %} |
+          {% endfor %}

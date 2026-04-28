@@ -1,0 +1,13 @@
+{
+  "domain": "voetbalnl",
+  "name": "Voetbal.nl",
+  "version": "1.0.0",
+  "documentation": "https://github.com/yourusername/ha-voetbalnl",
+  "issue_tracker": "https://github.com/yourusername/ha-voetbalnl/issues",
+  "codeowners": [],
+  "requirements": ["beautifulsoup4>=4.12.0"],
+  "dependencies": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "integration_type": "service"
+}

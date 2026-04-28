@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Voetbal.nl – Login",
+        "description": "Enter your voetbal.nl (KNVB Account) email address and password. The integration will log in automatically and refresh the session every 6 days in the background.",
+        "data": {
+          "username": "Email address",
+          "password": "Password"
+        }
+      },
+      "team": {
+        "title": "Voetbal.nl – Select Team",
+        "description": "Enter the name of the futsal team you want to track. Optionally paste the direct team URL from voetbal.nl to skip the search.",
+        "data": {
+          "team_name": "Team name",
+          "team_url": "Team URL (optional)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with Voetbal.nl",
+        "description": "Enter your voetbal.nl credentials again to restore access.",
+        "data": {
+          "username": "Email address",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Invalid email address or password. Please check your voetbal.nl credentials.",
+      "cannot_connect": "Cannot connect to voetbal.nl. Please check your internet connection.",
+      "team_not_found": "Team not found. Try providing the direct team URL.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This team is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Voetbal.nl Options",
+        "data": {
+          "scan_interval": "Update interval (minutes)",
+          "team_url": "Team URL override"
+        }
+      }
+    }
+  }
+}

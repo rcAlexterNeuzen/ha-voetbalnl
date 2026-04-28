@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Voetbal.nl – Inloggen",
+        "description": "Voer je voetbal.nl (KNVB Account) e-mailadres en wachtwoord in. De integratie logt automatisch in en vernieuwt de sessie elke 6 dagen op de achtergrond.",
+        "data": {
+          "username": "E-mailadres",
+          "password": "Wachtwoord"
+        }
+      },
+      "team": {
+        "title": "Voetbal.nl – Team selecteren",
+        "description": "Voer de naam in van het zaalvoetbalteam dat je wilt volgen. Je kunt ook de directe team-URL van voetbal.nl plakken om de zoekstap over te slaan.",
+        "data": {
+          "team_name": "Teamnaam",
+          "team_url": "Team-URL (optioneel)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Opnieuw inloggen bij Voetbal.nl",
+        "description": "Voer je voetbal.nl-gegevens opnieuw in om de toegang te herstellen.",
+        "data": {
+          "username": "E-mailadres",
+          "password": "Wachtwoord"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Ongeldig e-mailadres of wachtwoord. Controleer je voetbal.nl-gegevens.",
+      "cannot_connect": "Kan geen verbinding maken met voetbal.nl. Controleer je internetverbinding.",
+      "team_not_found": "Team niet gevonden. Probeer de directe team-URL op te geven.",
+      "unknown": "Er is een onverwachte fout opgetreden."
+    },
+    "abort": {
+      "already_configured": "Dit team is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Voetbal.nl Opties",
+        "data": {
+          "scan_interval": "Updateinterval (minuten)",
+          "team_url": "Team-URL overschrijven"
+        }
+      }
+    }
+  }
+}
