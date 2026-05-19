@@ -709,8 +709,12 @@ class VoetbalNLApi:
             if normalized in m.home_team.lower() or normalized in m.away_team.lower():
                 return m
 
-        # Fallback: return first match in list
-        return matches[0]
+        _LOGGER.debug(
+            "No upcoming match found for '%s' — team names in schedule: %s",
+            team_name,
+            [f"{m.home_team} vs {m.away_team}" for m in matches[:5]],
+        )
+        return None
 
     def _parse_last_result(self, html: str, team_name: str) -> MatchData | None:
         """
@@ -732,8 +736,12 @@ class VoetbalNLApi:
             if normalized in m.home_team.lower() or normalized in m.away_team.lower():
                 return m
 
-        # Fallback: return first (most recent) match in list
-        return matches[0]
+        _LOGGER.debug(
+            "No result found for '%s' — team names in results: %s",
+            team_name,
+            [f"{m.home_team} vs {m.away_team}" for m in matches[:5]],
+        )
+        return None
 
     @staticmethod
     def _match_involves_team(match: "MatchData", team_name: str) -> bool:

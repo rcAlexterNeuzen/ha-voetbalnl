@@ -1,6 +1,10 @@
 # ha-voetbalnl — Voetbal.nl Home Assistant Integration
 
+![Version](https://img.shields.io/badge/version-1.1.0-blue) ![HA](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-brightgreen)
+
 Track your **zaalvoetbal (futsal)** team on [voetbal.nl](https://www.voetbal.nl) directly from Home Assistant. The integration authenticates with your voetbal.nl account and exposes three sensors and a calendar per configured team.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ---
 
@@ -11,12 +15,13 @@ Each configured team creates one **device** (`Voetbal.nl – <team name>`) with 
 | Entity | Type | State | Key Attributes |
 |--------|------|-------|----------------|
 | **Standing** | Sensor | League position (integer, e.g. `4`) | `league`, `team`, `position`, `games_played`, `won`, `drawn`, `lost`, `goals_for`, `goals_against`, `goal_difference`, `points`, `full_standings` (list of all teams) |
-| **Next Match** | Sensor | `Home vs Away (HH:MM)` | `home_team`, `away_team`, `date`, `time`, `competition`, `location`, `is_home_game`, `opponent` |
+| **Next Match** | Sensor | `Home vs Away (HH:MM)` | `home_team`, `away_team`, `date`, `time`, `competition`, `location`, `match_url`, `is_home_game`, `opponent` |
 | **Last Result** | Sensor | `Home X-Y Away (WIN/LOSS/DRAW)` | `home_team`, `away_team`, `home_score`, `away_score`, `date`, `competition`, `location`, `result` (`win`/`loss`/`draw`), `goals_scored`, `goals_conceded`, `is_home_game`, `opponent` |
 | **Matches** | Calendar | Next upcoming match | Only the configured team's fixtures — scheduled matches as timed events, results with score in description |
 
 > **Note:** The `full_standings` attribute on the Standing sensor is a list of dicts with keys `position`, `team`, `played`, `won`, `drawn`, `lost`, `gf`, `ga`, `gd`, `points` — one entry per team in the league.
-> The `location` attribute on the Next Match and Last Result sensors is fetched from the individual match detail page on voetbal.nl. It may be empty if voetbal.nl has not yet published a venue for that fixture.
+> The `location` attribute on the Next Match and Last Result sensors is fetched from the individual match detail page and contains the venue name, street, and city (e.g. `Sporthallen Zuid, Burgerweeshuispad 54, Amsterdam`). It may be empty if voetbal.nl has not yet published a venue for that fixture.
+> The `match_url` attribute on the Next Match sensor contains the direct link to the match detail page on voetbal.nl.
 
 ---
 
@@ -114,7 +119,12 @@ After setup, click **Configure** on the integration card to adjust:
 - Try a shorter search term (e.g. just the club abbreviation or `VR1`).
 - Paste the team URL directly into the *Team URL* field.
 
+### Wrong match shown / sensor shows "No upcoming matches"
+
+The team name configured must match how the team appears in the voetbal.nl schedule. If the names differ (e.g. configured as `ZVR The Match VR3` but listed as `VR3`), no match will be found and the sensor returns `No upcoming matches` instead of showing an incorrect fixture. Enable debug logging and look for lines starting with `No upcoming match found for` — they list the exact team names voetbal.nl uses, so you can correct the configured name.
+
 ### No data / empty sensors
+
 - The integration scrapes voetbal.nl HTML. If the site changes its layout the parsers may need updating — please open an issue.
 - Enable debug logging:
 
