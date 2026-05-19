@@ -231,6 +231,7 @@ class VoetbalNLSensor(CoordinatorEntity[VoetbalNLCoordinator], SensorEntity):
             "time": getattr(match, "time", ""),
             "competition": getattr(match, "competition", ""),
             "location": getattr(match, "location", ""),
+            "match_url": getattr(match, "match_url", ""),
             "is_home_game": team_lower in home_team.lower(),
             "opponent": (
                 away_team
@@ -281,6 +282,7 @@ class VoetbalNLSensor(CoordinatorEntity[VoetbalNLCoordinator], SensorEntity):
             "away_score": away_score,
             "date": getattr(match, "date", ""),
             "competition": getattr(match, "competition", ""),
+            "location": getattr(match, "location", ""),
             "is_home_game": is_home,
             "opponent": away_team if is_home else home_team,
         }

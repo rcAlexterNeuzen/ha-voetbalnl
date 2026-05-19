@@ -12,10 +12,11 @@ Each configured team creates one **device** (`Voetbal.nl – <team name>`) with 
 |--------|------|-------|----------------|
 | **Standing** | Sensor | League position (integer, e.g. `4`) | `league`, `team`, `position`, `games_played`, `won`, `drawn`, `lost`, `goals_for`, `goals_against`, `goal_difference`, `points`, `full_standings` (list of all teams) |
 | **Next Match** | Sensor | `Home vs Away (HH:MM)` | `home_team`, `away_team`, `date`, `time`, `competition`, `location`, `is_home_game`, `opponent` |
-| **Last Result** | Sensor | `Home X-Y Away (WIN/LOSS/DRAW)` | `home_team`, `away_team`, `home_score`, `away_score`, `date`, `competition`, `result` (`win`/`loss`/`draw`), `goals_scored`, `goals_conceded`, `is_home_game`, `opponent` |
+| **Last Result** | Sensor | `Home X-Y Away (WIN/LOSS/DRAW)` | `home_team`, `away_team`, `home_score`, `away_score`, `date`, `competition`, `location`, `result` (`win`/`loss`/`draw`), `goals_scored`, `goals_conceded`, `is_home_game`, `opponent` |
 | **Matches** | Calendar | Next upcoming match | Only the configured team's fixtures — scheduled matches as timed events, results with score in description |
 
 > **Note:** The `full_standings` attribute on the Standing sensor is a list of dicts with keys `position`, `team`, `played`, `won`, `drawn`, `lost`, `gf`, `ga`, `gd`, `points` — one entry per team in the league.
+> The `location` attribute on the Next Match and Last Result sensors is fetched from the individual match detail page on voetbal.nl. It may be empty if voetbal.nl has not yet published a venue for that fixture.
 
 ---
 

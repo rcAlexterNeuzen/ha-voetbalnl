@@ -73,6 +73,7 @@ class MatchData:
     away_score: int | None = None
     competition: str = ""
     location: str = ""
+    match_url: str = ""
     is_played: bool = False
 
     @property
@@ -546,6 +547,12 @@ class VoetbalNLApi:
                 f"Connection error fetching team data: {err}"
             ) from err
 
+        # Enrich next match and last result with location from their detail pages
+        if next_match and next_match.match_url and not next_match.location:
+            next_match.location = await self.get_match_location(next_match.match_url)
+        if last_result and last_result.match_url and not last_result.location:
+            last_result.location = await self.get_match_location(last_result.match_url)
+
         return standing_data, next_match, last_result, all_matches
 
     def _parse_standings(self, html: str, team_name: str) -> StandingData | None:
@@ -818,6 +825,10 @@ class VoetbalNLApi:
         """Parse a single <a class="row"> match element on voetbal.nl."""
         m = MatchData()
 
+        href = row.get("href", "")
+        if href:
+            m.match_url = href if href.startswith("http") else f"{BASE_URL}{href}"
+
         home_el = row.select_one(".value.home .team")
         if home_el:
             m.home_team = home_el.get_text(strip=True)
@@ -954,6 +965,47 @@ class VoetbalNLApi:
             except ValueError:
                 pass
         return parsed
+
+    async def get_match_location(self, match_url: str) -> str:
+        """Fetch the location/venue of a match from its detail page."""
+        if not match_url:
+            return ""
+        session = await self._get_session()
+        try:
+            async with session.get(match_url) as resp:
+                if resp.status != 200:
+                    _LOGGER.debug(
+                        "Match detail page returned HTTP %s for %s",
+                        resp.status, match_url,
+                    )
+                    return ""
+                html = await resp.text()
+        except aiohttp.ClientError as err:
+            _LOGGER.debug("Error fetching match detail for location: %s", err)
+            return ""
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        park = soup.select_one(".LocationDetails-infoPark")
+        if not park:
+            _LOGGER.debug("No LocationDetails found on match page: %s", match_url)
+            return ""
+
+        parts = [park.get_text(strip=True)]
+
+        street_el = soup.select_one(".LocationDetails-infoStreet")
+        if street_el:
+            parts.append(street_el.get_text(strip=True))
+
+        zip_el = soup.select_one(".LocationDetails-infoZip")
+        if zip_el:
+            # "1076EP Amsterdam" — grab only the city (everything after the postcode)
+            zip_text = zip_el.get_text(strip=True)
+            city_match = re.search(r"[A-Z]{2}\s+(.+)$", zip_text)
+            if city_match:
+                parts.append(city_match.group(1).strip())
+
+        return ", ".join(parts)
 
     async def validate_team_url(self, team_url: str) -> bool:
         """Check if a team URL is accessible and returns a valid page."""
