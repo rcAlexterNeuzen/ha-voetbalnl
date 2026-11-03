@@ -488,14 +488,31 @@ class VoetbalNLApi:
         session = await self._get_session()
 
         # Build sub-page URLs.
-        # team_url is typically .../team/T{id}/overzicht — strip last path
-        # segment to reach the team's base URL, then append sub-page names.
-        base = team_url.rstrip("/")
-        for _suffix in ("/overzicht", "/programma", "/uitslagen", "/stand"):
-            if base.endswith(_suffix):
-                base = base[: -len(_suffix)]
-                break
-        standing_url = f"{base}/stand"
+        # team_url is typically .../team/T{id}/overzicht, but may also be a
+        # deep link into a specific competition/season, e.g.
+        # .../team/T{id}/stand/competitie-najaar — preserve that suffix so we
+        # keep requesting the correct competition instead of always falling
+        # back to the generic (default) /stand page.
+        team_url_clean = team_url.rstrip("/")
+        id_match = re.search(r"/team/(T\d+)", team_url_clean)
+        team_id = id_match.group(1) if id_match else None
+
+        competition_suffix = ""
+        stand_match = re.search(r"/stand/(.+)$", team_url_clean)
+        if stand_match:
+            competition_suffix = f"/{stand_match.group(1)}"
+
+        if team_id:
+            base = f"{BASE_URL}/team/{team_id}"
+        else:
+            # Fallback: strip any known sub-page suffix from whatever we got
+            base = team_url_clean
+            for _suffix in ("/overzicht", "/programma", "/uitslagen", "/stand"):
+                if base.endswith(_suffix):
+                    base = base[: -len(_suffix)]
+                    break
+
+        standing_url = f"{base}/stand{competition_suffix}"
         schedule_url = f"{base}/programma"
         results_url = f"{base}/uitslagen"
 
